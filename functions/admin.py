@@ -40,6 +40,62 @@ def contact_form(fname, lname, eaddress, message):
         if conn is not None:
             conn.close()
 
+def add_user(user, password):
+    """ insert a new user into the users table """
+    sql = f"INSERT INTO users(username,password) VALUES('{user}','{password}') RETURNING user_id;"
+    conn = None
+    user_id = None
+
+    conn = connect_to_db()
+    try:
+        # create a new cursor
+        cur = conn.cursor()
+        # execute the INSERT statement
+        cur.execute(sql)
+        # get the generated id back
+        user_id = cur.fetchone()[0]
+        # commit the changes to the database
+        conn.commit()
+        # close communication with the database
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+    return user_id
+
+def get_user(user):
+
+    conn = connect_to_db()
+
+    sql = f"SELECT * FROM users WHERE username ='{user}';"
+
+    try:
+
+         # create a new cursor
+        cur = conn.cursor()
+        # execute the SELECT statement
+        cur.execute(sql)
+        # get the selected users back
+        users = cur.fetchall()
+        # close communication with the database
+        cur.close()
+
+        # check if user with same name already exists
+        if len(users) >= 1:
+            return False
+        else:
+            return True
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
 def login_user(user, password):
     
     conn = connect_to_db()
