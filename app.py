@@ -1,7 +1,7 @@
 from os import error
 import re
 from flask import Flask, render_template, request, url_for, redirect, session
-from functions.admin import contact_form,login_user, get_records, get_single_record, edit_record, delete_record
+from functions.admin import contact_form,login_user, get_records, get_single_record, edit_record, delete_record, add_user, get_user
 
 app = Flask(__name__)
 
@@ -70,6 +70,28 @@ def admin():
 
     # return the admin page, showing any message or data that we may have
     return render_template('admin.html', error = error, records = records)
+
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    
+    error = False
+    new_id = False
+
+    # If user submiited form to add a user
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        if get_user(username):
+            new_id = add_user(username, password)
+            error = "Registration sucessful. Please login"
+            return render_template('admin.html', error = error)
+        else:
+            error = f"Username {username} not available"
+        
+
+    return render_template('register.html', error = error, id = new_id)
+
 
 @app.route("/edit", methods=['GET', 'POST'])
 def edit():
